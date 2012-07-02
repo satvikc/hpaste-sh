@@ -1,0 +1,105 @@
+#!/bin/sh
+languages=( 'haskell' 'agda' 'ocaml' 'lisp' 'erlang' 'literatehaskell' 'scala' 'go' 'python' 'ruby' 'prolog' 'bash' 'c' 'cs' 'cpp' 'diff' 'java' 'javascript' 'lua' 'objectivec' 'perl' 'smalltalk' 'sql' 'tex')
+channels=('#haskell' '#xmonad' '#javascript' '#python' '#ruby' '#lisp' '#scala' '#agda' '#coffeescript' '#arc' '##c' '#clojure' '#scheme' '##prolog' '#emacs' '#hpaste' '#happs')
+if [[ "$NICK" != "" ]]; then 
+    author="$NICK"
+else 
+    author="$USER"
+fi
+Channel=""
+language="haskell"
+valid=1
+
+containsElement() {
+    for e in "${@:2}";
+    do [[ "$e" = "$1" ]] && return 1; done 
+    return 0 
+}
+if [ -f "$1" ]; then
+    title=$(basename "$1")
+    paste="$1"
+elif [ -f "$2" ]; then 
+    title=$(basename $2)
+    paste="$2"
+    containsElement "$1" "${languages[@]}" 
+    retlang="$?"
+    containsElement "$1" "${channels[@]}" 
+    retchan="$?"
+    if (( "$retlang" == "1" )); then 
+        language="$1"
+    elif  (( "$retchan" == "1" )); then 
+        channel="$1"
+    else 
+        title="$1"
+    fi 
+elif [ -f "$3" ]; then 
+    title=$(basename $3)
+    paste="$3"
+    containsElement "$1" "${languages[@]}" 
+    retlang1="$?"
+    containsElement "$1" "${channels[@]}" 
+    retchan1="$?"
+    containsElement "$2" "${languages[@]}" 
+    retlang2="$?"
+    containsElement "$2" "${channels[@]}" 
+    retchan2="$?"
+    if (( "$retlang1"=="1" )) && (( "$retchan2"==1 )); then 
+        language="$1"
+        channel="$2"
+    elif (( "$retlang2"=="1" )); then 
+        title="$1"
+        language="$2"
+    elif (( "$retchan2"=="1" )); then 
+        title=$(basename $1)
+        channel="$2"
+    else 
+        valid=0
+    fi
+elif [ -f  "$4" ]; then
+    title=$(basename $4)
+    paste="$4"
+    containsElement "$2" "${languages[@]}" 
+    retlang="$?"
+    containsElement "$3" "${channels[@]}" 
+    retchan="$?"
+    if (( "$retlang"=="1" )) && (( "$retchan"==1 )); then 
+        title="$1"
+        language="$2"
+        channel="$3"
+    else 
+        valid=0
+    fi 
+else
+    valid=0
+fi
+
+if (( "$valid" == 0 )); then 
+    echo "Usage:"
+    echo "           $0 [title] [language] [channel] filename"
+    echo "           [arg] means arg is optional"
+    echo ""
+    echo "Example:"
+    echo "           $0 \"My haskell example\" example.hs"
+    echo "           Will paste the file with \"My haskell example\" as the title"
+    echo "           If only title is given and it matches with a language name or channel name then it will be taken as a language name or channel name"
+    echo ""
+    echo "Languages:"
+    echo "           ${languages[@]}"
+    echo ""
+    echo "Channels:"
+    echo "           ${channels[@]}"
+    echo ""
+    echo "Defaults:"
+    echo "           title : filename"
+    echo "           language : haskell"
+    echo "           channel : None"
+    echo "           author : If \$NICK is defined then it is taken otherwise \$USER is taken"
+else 
+    #echo "title: $title"
+    #echo "author: $author"
+    #echo "language: $language"
+    #echo "channel: $channel"
+    #echo "paste: $paste"
+    curl -w "%{redirect_url}" --compressed --data-urlencode "title=$title" --data-urlencode "author=$author" --data-urlencode "language=$language" --data-urlencode "channel=$channel" --data-urlencode "paste@$paste" -d "email=" -d "submit=Submit" "http://hpaste.org/new"
+    echo ""
+fi
