@@ -1,39 +1,114 @@
 #!/bin/sh
+
 languages=( 'haskell' 'agda' 'ocaml' 'lisp' 'erlang' 'literatehaskell' 'scala' 'go' 'python' 'ruby' 'prolog' 'bash' 'c' 'cs' 'cpp' 'diff' 'java' 'javascript' 'lua' 'objectivec' 'perl' 'smalltalk' 'sql' 'tex')
+
+# Automatic inferencing language from extension 
+Channel=""
+language=""
+valid=1
+
+getLanguage(){
+    if [[ "$1" = "hs" ]]; then 
+        language="haskell"
+    elif [[ "$1" = "agda" ]]; then 
+        language="agda"
+    elif [[ "$1" = "lagda" ]]; then 
+        language="lagda"
+    elif [[ "$1" = "erl" ]]; then 
+        language="erlang"
+    elif [[ "$1" = "lhs" ]]; then 
+        language="literatehaskell"
+    elif [[ "$1" = "scala" ]]; then 
+        language="scala"
+    elif [[ "$1" = "py" ]]; then
+        language="python"
+    elif [[ "$1" = "rb" ]]; then 
+        language="ruby"
+    elif [[ "$1" = "sh" ]]; then 
+        language="bash"
+    elif [[ "$1" = "c" ]]; then 
+        language="c"
+    elif [[ "$1" = "cc" ]]; then 
+        language="c"
+    elif [[ "$1" = "cs" ]]; then 
+        language="cs"
+    elif [[ "$1" = "asmx" ]]; then 
+        language="cs"
+    elif [[ "$1" = "cpp" ]]; then 
+        language="cpp"
+    elif [[ "$1" = "cxx" ]]; then 
+        language="cpp"
+    elif [[ "$1" = "java" ]]; then 
+        language="java"
+    elif [[ "$1" = "jav" ]]; then 
+        language="java"
+    elif [[ "$1" = "j" ]]; then 
+        language="java"
+    elif [[ "$1" = "js" ]]; then 
+        language="javascript"
+    elif [[ "$1" = "lua" ]]; then 
+        language="lua"
+    elif [[ "$1" = "m" ]]; then 
+        language="objectivec"
+    elif [[ "$1" = "mm" ]]; then 
+        language="objectivec"
+    elif [[ "$1" = "pl" ]]; then 
+        language="perl"
+    elif [[ "$1" = "pm" ]]; then 
+        language="perl"
+    elif [[ "$1" = "sql" ]]; then 
+        language="sql"
+    elif [[ "$1" = "tex" ]]; then 
+        language="tex"
+    else 
+        language=""
+    fi
+}
+
+
 channels=('#haskell' '#xmonad' '#javascript' '#python' '#ruby' '#lisp' '#scala' '#agda' '#coffeescript' '#arc' '##c' '#clojure' '#scheme' '##prolog' '#emacs' '#hpaste' '#happs')
+
 if [[ "$NICK" != "" ]]; then 
     author="$NICK"
 else 
     author="$USER"
 fi
-Channel=""
-language="haskell"
-valid=1
 
+# Helper Functions 
+
+# Finds if the given array contains the given element 
+# function element array
+# Return 1 if found otherwise 0
 containsElement() {
     for e in "${@:2}";
     do [[ "$e" = "$1" ]] && return 1; done 
     return 0 
 }
+
+
+
 if [ -f "$1" ]; then
     title=$(basename "$1")
+    getLanguage "${title##*.}"
     paste="$1"
 elif [ -f "$2" ]; then 
     title=$(basename $2)
+    getLanguage "${title##*.}"
     paste="$2"
     containsElement "$1" "${languages[@]}" 
     retlang="$?"
     containsElement "$1" "${channels[@]}" 
     retchan="$?"
-    if (( "$retlang" == "1" )); then 
+    if [[ "$retlang" = "1" ]]; then 
         language="$1"
-    elif  (( "$retchan" == "1" )); then 
+    elif  [[ "$retchan" = "1" ]]; then 
         channel="$1"
     else 
         title="$1"
     fi 
 elif [ -f "$3" ]; then 
     title=$(basename $3)
+    getLanguage "${title##*.}"
     paste="$3"
     containsElement "$1" "${languages[@]}" 
     retlang1="$?"
@@ -43,13 +118,13 @@ elif [ -f "$3" ]; then
     retlang2="$?"
     containsElement "$2" "${channels[@]}" 
     retchan2="$?"
-    if (( "$retlang1"=="1" )) && (( "$retchan2"==1 )); then 
+    if [[ "$retlang1"="1" ]] && [[ "$retchan2"="1" ]]; then 
         language="$1"
         channel="$2"
-    elif (( "$retlang2"=="1" )); then 
+    elif [[ "$retlang2"="1" ]]; then 
         title="$1"
         language="$2"
-    elif (( "$retchan2"=="1" )); then 
+    elif [[ "$retchan2"="1" ]]; then 
         title=$(basename $1)
         channel="$2"
     else 
@@ -57,12 +132,13 @@ elif [ -f "$3" ]; then
     fi
 elif [ -f  "$4" ]; then
     title=$(basename $4)
+    getLanguage "${title##*.}"
     paste="$4"
     containsElement "$2" "${languages[@]}" 
     retlang="$?"
     containsElement "$3" "${channels[@]}" 
     retchan="$?"
-    if (( "$retlang"=="1" )) && (( "$retchan"==1 )); then 
+    if [[ "$retlang"="1" ]] && [[ "$retchan"="1" ]]; then 
         title="$1"
         language="$2"
         channel="$3"
@@ -73,7 +149,7 @@ else
     valid=0
 fi
 
-if (( "$valid" == 0 )); then 
+if [[ "$valid" = 0 ]]; then 
     echo "Usage:"
     echo "           $0 [title] [language] [channel] filename"
     echo "           [arg] means arg is optional"
