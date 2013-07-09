@@ -176,6 +176,6 @@ else
     #echo "language: $language"
     #echo "channel: $channel"
     #echo "paste: $paste"
-    curl -w "%{redirect_url}" --compressed --data-urlencode "title=$title" --data-urlencode "author=$author" --data-urlencode "language=$language" --data-urlencode "channel=$channel" --data-urlencode "paste@$paste" -d "email=" -d "submit=Submit" "http://hpaste.org/new"
+    curl -w "%{redirect_url}" --compressed --data-urlencode "title=$title" --data-urlencode "author=$author" --data-urlencode "language=$language" --data-urlencode "channel=$channel" --data-urlencode "paste@$paste" -d "email=" -d "submit=Submit" "http://paste.tryhaskell.org/new"
     echo ""
 fi
